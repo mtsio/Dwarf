@@ -349,32 +349,10 @@ class DeviceBar(QWidget):
         self._adb.device = frida_device.id
         self._device_id = frida_device.id
         if self._adb.available():
-            self.update_label.setText('Device: ' + frida_device.name)
-            # try getting frida version
-            device_frida = self._adb.get_frida_version()
-            # frida not found show install button
-            if device_frida is None:
-                self._install_btn.setVisible(True)
-            else:
-                # frida is old show update button
-                if self.updated_frida_version != device_frida:
-                    self._start_btn.setVisible(True)
-                    self._update_btn.setVisible(False)
-                    # old frida is running allow use of this version
-                    if self._adb.is_frida_running():
-                        self._start_btn.setVisible(False)
-                        if self.updated_frida_assets_url:
-                            self._update_btn.setVisible(True)
-                        self.update_label.setStyleSheet('background-color: yellowgreen;')
-                        self.onDeviceUpdated.emit(frida_device.id)
-                # frida not running show start button
-                elif device_frida and not self._adb.is_frida_running():
-                    self._start_btn.setVisible(True)
-                # frida is running with last version show restart button
-                elif device_frida and self._adb.is_frida_running():
-                    self.update_label.setStyleSheet('background-color: yellowgreen;')
-                    self._restart_btn.setVisible(True)
-                    self.onDeviceUpdated.emit(frida_device.id)
+            if self._adb.is_frida_running():
+                self.update_label.setStyleSheet('background-color: yellowgreen;')
+                self._restart_btn.setVisible(True)
+                self.onDeviceUpdated.emit(frida_device.id)
 
         elif self._adb.non_root_available():
             self.update_label.setText('Device: ' + frida_device.name + ' (NOROOT!)')
